@@ -1,0 +1,210 @@
+
+<style>
+  .root { padding: 16px 0 24px; font-family: var(--font-mono); font-size: 13px; }
+  .tree { line-height: 1.7; }
+  .row { display: flex; align-items: center; gap: 6px; padding: 1px 0; cursor: pointer; border-radius: 4px; transition: background .12s; }
+  .row:hover { background: var(--color-background-secondary); }
+  .prefix { color: var(--color-text-tertiary); white-space: pre; user-select: none; }
+  .folder { color: #378ADD; font-weight: 500; }
+  .file { color: var(--color-text-secondary); }
+  .file.ts  { color: #3B8BD4; }
+  .file.tsx { color: #1D9E75; }
+  .file.css { color: #D85A30; }
+  .file.test { color: #BA7517; }
+  .file.json { color: #888780; }
+  .badge { font-family: var(--font-sans); font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 500; white-space: nowrap; }
+  .b-blue   { background: #E6F1FB; color: #185FA5; }
+  .b-green  { background: #EAF3DE; color: #3B6D11; }
+  .b-amber  { background: #FAEEDA; color: #854F0B; }
+  .b-teal   { background: #E1F5EE; color: #0F6E56; }
+  .b-purple { background: #EEEDFE; color: #534AB7; }
+  .b-coral  { background: #FAECE7; color: #993C1D; }
+  .b-gray   { background: #F1EFE8; color: #5F5E5A; }
+  @media (prefers-color-scheme: dark) {
+    .b-blue   { background: #0C447C; color: #B5D4F4; }
+    .b-green  { background: #27500A; color: #C0DD97; }
+    .b-amber  { background: #633806; color: #FAC775; }
+    .b-teal   { background: #085041; color: #9FE1CB; }
+    .b-purple { background: #3C3489; color: #CECBF6; }
+    .b-coral  { background: #712B13; color: #F5C4B3; }
+    .b-gray   { background: #444441; color: #D3D1C7; }
+  }
+  .tooltip { font-family: var(--font-sans); font-size: 12px; color: var(--color-text-secondary); margin-left: 8px; flex-shrink: 0; }
+  .section-label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--color-text-tertiary); margin: 14px 0 4px 4px; }
+  h3 { font-family: var(--font-sans); font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 12px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+</style>
+<div class="root">
+  <h3>React project — scalable folder structure</h3>
+  <div class="legend">
+    <span class="badge b-blue">pages / routes</span>
+    <span class="badge b-green">components</span>
+    <span class="badge b-teal">hooks &amp; state</span>
+    <span class="badge b-amber">utilities</span>
+    <span class="badge b-purple">services / API</span>
+    <span class="badge b-coral">assets &amp; styles</span>
+    <span class="badge b-gray">config &amp; tests</span>
+  </div>
+  <div class="tree" id="tree"></div>
+</div>
+<script>
+const F = (n,b,t,ch) => ({name:n,badge:b,tip:t,children:ch});
+const tree = [
+  {name:'my-app/', badge:null, tip:'Project root', children:[
+    {name:'public/', badge:null, tip:'Static assets served as-is', children:[
+      {name:'index.html',type:'html',tip:'HTML entry point'},
+      {name:'favicon.ico',type:'file',tip:'Browser tab icon'},
+    ]},
+    {name:'src/', badge:null, tip:'All application source code', children:[
+      {name:'assets/', badge:'b-coral', tip:'Static media: images, fonts, icons', children:[
+        {name:'images/',badge:null,tip:'',children:[{name:'logo.svg',type:'file'}]},
+        {name:'fonts/',badge:null,tip:'',children:[{name:'inter.woff2',type:'file'}]},
+      ]},
+      {name:'styles/', badge:'b-coral', tip:'Global and shared CSS/SCSS', children:[
+        {name:'globals.css',type:'css',tip:'CSS reset & root variables'},
+        {name:'variables.css',type:'css',tip:'Design tokens (colors, spacing)'},
+        {name:'mixins.css',type:'css',tip:'Reusable style helpers'},
+      ]},
+      {name:'components/', badge:'b-green', tip:'Shared, reusable UI components', children:[
+        {name:'ui/', badge:null, tip:'Primitive building blocks', children:[
+          {name:'Button/',badge:null,tip:'',children:[
+            {name:'Button.tsx',type:'tsx',tip:'Component logic & JSX'},
+            {name:'Button.module.css',type:'css',tip:'Scoped styles'},
+            {name:'Button.test.tsx',type:'test',tip:'Unit tests'},
+            {name:'index.ts',type:'ts',tip:'Re-export barrel'},
+          ]},
+          {name:'Input/',badge:null,tip:'',children:[{name:'Input.tsx',type:'tsx'},{name:'index.ts',type:'ts'}]},
+          {name:'Modal/',badge:null,tip:'',children:[{name:'Modal.tsx',type:'tsx'},{name:'index.ts',type:'ts'}]},
+        ]},
+        {name:'layout/', badge:null, tip:'Page chrome (nav, sidebars)', children:[
+          {name:'Navbar.tsx',type:'tsx',tip:'Top navigation bar'},
+          {name:'Sidebar.tsx',type:'tsx',tip:'Side navigation panel'},
+          {name:'Footer.tsx',type:'tsx',tip:'Page footer'},
+          {name:'RootLayout.tsx',type:'tsx',tip:'Wraps every page'},
+        ]},
+        {name:'shared/', badge:null, tip:'Domain-agnostic feature pieces', children:[
+          {name:'DataTable.tsx',type:'tsx',tip:'Generic sortable table'},
+          {name:'Pagination.tsx',type:'tsx',tip:'Generic pagination'},
+          {name:'ErrorBoundary.tsx',type:'tsx',tip:'Catches render errors'},
+        ]},
+      ]},
+      {name:'features/', badge:'b-green', tip:'Self-contained feature modules', children:[
+        {name:'auth/', badge:null, tip:'Login, signup, session', children:[
+          {name:'components/',badge:null,tip:'',children:[{name:'LoginForm.tsx',type:'tsx'},{name:'AuthGuard.tsx',type:'tsx'}]},
+          {name:'hooks/',badge:null,tip:'',children:[{name:'useAuth.ts',type:'ts',tip:'Auth state & actions'}]},
+          {name:'api/',badge:null,tip:'',children:[{name:'authApi.ts',type:'ts',tip:'Auth endpoint calls'}]},
+          {name:'store/',badge:null,tip:'',children:[{name:'authSlice.ts',type:'ts',tip:'Redux / Zustand slice'}]},
+          {name:'index.ts',type:'ts',tip:'Public API for this feature'},
+        ]},
+        {name:'dashboard/', badge:null, tip:'Main dashboard feature', children:[
+          {name:'components/',badge:null,tip:'',children:[{name:'StatsCard.tsx',type:'tsx'},{name:'Chart.tsx',type:'tsx'}]},
+          {name:'hooks/',badge:null,tip:'',children:[{name:'useDashboard.ts',type:'ts'}]},
+          {name:'index.ts',type:'ts'},
+        ]},
+        {name:'products/', badge:null, tip:'Products feature', children:[
+          {name:'components/',badge:null,tip:'',children:[{name:'ProductList.tsx',type:'tsx'},{name:'ProductCard.tsx',type:'tsx'}]},
+          {name:'index.ts',type:'ts'},
+        ]},
+      ]},
+      {name:'pages/', badge:'b-blue', tip:'Route-level page components', children:[
+        {name:'HomePage.tsx',type:'tsx',tip:'/ route'},
+        {name:'DashboardPage.tsx',type:'tsx',tip:'/dashboard route'},
+        {name:'ProductsPage.tsx',type:'tsx',tip:'/products route'},
+        {name:'NotFoundPage.tsx',type:'tsx',tip:'404 fallback'},
+      ]},
+      {name:'hooks/', badge:'b-teal', tip:'App-wide custom React hooks', children:[
+        {name:'useDebounce.ts',type:'ts',tip:'Debounce any value'},
+        {name:'useLocalStorage.ts',type:'ts',tip:'Persist state to localStorage'},
+        {name:'useMediaQuery.ts',type:'ts',tip:'Responsive breakpoints'},
+        {name:'useEventListener.ts',type:'ts',tip:'Add DOM listeners safely'},
+      ]},
+      {name:'store/', badge:'b-teal', tip:'Global state management (Redux / Zustand)', children:[
+        {name:'index.ts',type:'ts',tip:'Store configuration'},
+        {name:'rootReducer.ts',type:'ts',tip:'Combine all slices'},
+        {name:'middleware/',badge:null,tip:'',children:[{name:'logger.ts',type:'ts'},{name:'errorHandler.ts',type:'ts'}]},
+      ]},
+      {name:'services/', badge:'b-purple', tip:'External integrations & API layer', children:[
+        {name:'api/',badge:null,tip:'Base HTTP client',children:[
+          {name:'client.ts',type:'ts',tip:'Axios / fetch instance'},
+          {name:'interceptors.ts',type:'ts',tip:'Auth headers, error handling'},
+        ]},
+        {name:'analytics.ts',type:'ts',tip:'Analytics events (GA, Segment)'},
+        {name:'sentry.ts',type:'ts',tip:'Error tracking setup'},
+      ]},
+      {name:'utils/', badge:'b-amber', tip:'Pure helper functions', children:[
+        {name:'formatDate.ts',type:'ts',tip:'Date formatting'},
+        {name:'formatCurrency.ts',type:'ts',tip:'Currency helpers'},
+        {name:'validators.ts',type:'ts',tip:'Form validation rules'},
+        {name:'classNames.ts',type:'ts',tip:'Conditional class strings'},
+        {name:'constants.ts',type:'ts',tip:'App-wide constants'},
+      ]},
+      {name:'types/', badge:'b-gray', tip:'Shared TypeScript type definitions', children:[
+        {name:'api.types.ts',type:'ts',tip:'API response shapes'},
+        {name:'user.types.ts',type:'ts',tip:'User & auth types'},
+        {name:'common.types.ts',type:'ts',tip:'Generic utility types'},
+      ]},
+      {name:'config/', badge:'b-gray', tip:'Environment-aware configuration', children:[
+        {name:'env.ts',type:'ts',tip:'Typed env var access'},
+        {name:'routes.ts',type:'ts',tip:'Route path constants'},
+        {name:'theme.ts',type:'ts',tip:'Design token JS object'},
+      ]},
+      {name:'router/', badge:'b-blue', tip:'Routing setup', children:[
+        {name:'AppRouter.tsx',type:'tsx',tip:'Route definitions'},
+        {name:'ProtectedRoute.tsx',type:'tsx',tip:'Auth-gated wrapper'},
+        {name:'lazyRoutes.ts',type:'ts',tip:'Code-split imports'},
+      ]},
+      {name:'App.tsx',type:'tsx',tip:'Root component, providers'},
+      {name:'main.tsx',type:'tsx',tip:'ReactDOM.render entry'},
+      {name:'vite-env.d.ts',type:'ts',tip:'Vite type declarations'},
+    ]},
+    {name:'tests/', badge:'b-gray', tip:'Integration & e2e tests', children:[
+      {name:'e2e/',badge:null,tip:'',children:[{name:'auth.spec.ts',type:'test',tip:'Playwright / Cypress specs'}]},
+      {name:'setup.ts',type:'ts',tip:'Jest / Vitest global setup'},
+    ]},
+    {name:'.env.example',type:'file',tip:'Document required env vars'},
+    {name:'tsconfig.json',type:'json',tip:'TypeScript config'},
+    {name:'vite.config.ts',type:'ts',tip:'Vite build config'},
+    {name:'package.json',type:'json',tip:'Dependencies & scripts'},
+  ]}
+];
+
+const badges = {
+  'assets/':'b-coral','styles/':'b-coral',
+  'components/':'b-green','features/':'b-green',
+  'pages/':'b-blue','router/':'b-blue',
+  'hooks/':'b-teal','store/':'b-teal',
+  'services/':'b-purple',
+  'utils/':'b-amber',
+  'types/':'b-gray','config/':'b-gray','tests/':'b-gray',
+};
+
+function typeClass(t){ return t==='tsx'?'tsx':t==='css'?'css':t==='test'?'test':t==='json'?'json':'ts'; }
+function icon(node){
+  if(node.children) return '📁';
+  const t = node.type||'file';
+  if(t==='tsx') return '⚛';
+  if(t==='ts') return '🔷';
+  if(t==='css') return '🎨';
+  if(t==='test') return '🧪';
+  if(t==='json') return '{}';
+  return '·';
+}
+
+let html = '';
+function render(nodes, depth, prefix){
+  nodes.forEach((node, i) => {
+    const last = i===nodes.length-1;
+    const branch = last ? '└─ ' : '├─ ';
+    const childPfx = prefix + (last ? '   ' : '│  ');
+    const isFolder = !!node.children;
+    const badgeCls = node.badge || (isFolder && badges[node.name]) || '';
+    const badgeHtml = badgeCls ? `<span class="badge ${badgeCls}" style="margin-left:6px">${badgeCls.replace('b-','')}</span>` : '';
+    const tipHtml = node.tip ? `<span class="tooltip">${node.tip}</span>` : '';
+    const nameClass = isFolder ? 'folder' : 'file '+(node.type?typeClass(node.type):'');
+    html += `<div class="row"><span class="prefix">${prefix}${branch}</span><span class="prefix" style="margin-right:3px">${icon(node)}</span><span class="${nameClass}">${node.name}</span>${badgeHtml}${tipHtml}</div>`;
+    if(node.children) render(node.children, depth+1, childPfx);
+  });
+}
+render(tree, 0, '');
+document.getElementById('tree').innerHTML = html;
+</script>
